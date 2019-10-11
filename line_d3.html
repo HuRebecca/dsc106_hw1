@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<style type="text/css">
+/* 13. Basic Styling with CSS */
+
+/* Style the lines by removing the fill and applying a stroke */
+.line {
+    fill: none;
+    stroke: #ffab00;
+    stroke-width: 3;
+}
+  
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+/* Style the dots by assigning a fill and stroke */
+.dot {
+    fill: #ffab00;
+    stroke: #fff;
+}
+  
+  .focus circle {
+  fill: none;
+  stroke: steelblue;
+}
+
+</style>
+<!-- Body tag is where we will append our SVG and SVG objects-->
+<body>
+</body>
+
+<!-- Load in the d3 library -->
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script>
+
+// 2. Use the margin convention practice 
+var margin = {top: 50, right: 50, bottom: 50, left: 50}
+  , width = window.innerWidth - margin.left - margin.right // Use the window's width 
+  , height = window.innerHeight - margin.top - margin.bottom; // Use the window's height
+
+// The number of datapoints
+var n = 14;
+
+// 5. X scale will use the index of our data
+var xScale = d3.scaleLinear()
+    //.domain([0, n-1]) // input
+    //.range([0, width]); // output
+    .domain([2005, 2018])
+    .range([0, width]);
+
+//console.log(xScale);
+
+// 6. Y scale will use the randomly generate number 
+var yScale = d3.scaleLinear()
+    //.domain([0, 1]) // input 
+    //.range([height, 0]); // output 
+    .domain([1500, 3500])
+    .range([height, 0]);
+
+// 7. d3's line generator
+var line = d3.line()
+    .x(function(d) { return xScale(d.x); }) // set the x values for the line generator
+    .y(function(d) { return yScale(d.y); }) // set the y values for the line generator 
+    //.curve(d3.curveMonotoneX) // apply smoothing to the line
+
+// 8. An array of objects of length N. Each object has key -> value pair, the key being "y" and the value is a random number
+//var dataset = d3.range(n).map(function(d) { return {"y": d3.randomUniform(1)() } })
+
+// HERE IS REBECCA TRYING STUFF -- START!!!!!!!!!!!!!!!!!!!!!!!!!
+
+/*var dataset = [
+  {2005: 2113},
+  {2006: 2558},
+  {2007: 2303},
+  {2008: 2399},
+  {2009: 2054}, 
+  {2010: 2089},
+  {2011: 1861},
+  {2012: 2245},
+  {2013: 2612},
+  {2014: 2383},
+  {2015: 2581},
+  {2016: 3077},
+  {2017: 2974},
+  {2018: 3484}
+];
+*/
+
+var dataset = [
+  {"x": 2005, "y": 2113},
+  {"x": 2006, "y": 2558},
+  {"x": 2007, "y": 2303},
+  {"x": 2008, "y": 2399},
+  {"x": 2009, "y": 2054}, 
+  {"x": 2010, "y": 2089},
+  {"x": 2011, "y": 1861},
+  {"x": 2012, "y": 2245},
+  {"x": 2013, "y": 2612},
+  {"x": 2014, "y": 2383},
+  {"x": 2015, "y": 2581},
+  {"x": 2016, "y": 3077},
+  {"x": 2017, "y": 2974},
+  {"x": 2018, "y": 3484}
+];
+
+
+
+//load in data and convert fulltime women enrolled to int??? - Rebecca 
+//var dataset = d3.csv("ucsd_cds_admission_data_2005_to_2018.csv").then(function(data) {
+//  data.forEach(function(d) {
+//    d.fulltime_women_enrolled = +d.fulltime_women_enrolled;
+//  });
+//  console.log(data[0]);
+//});
+// HERE IS REBECCA TRYING STUFF -- END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+// 1. Add the SVG to the page and employ #2
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// 3. Call the x axis in a group tag
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
+
+// text label for the x axis
+svg.append("text")             
+  .attr("transform",
+    "translate(" + (width/2) + " ," + 
+                    (height - margin.top + 100) + ")")
+  .style("text-anchor", "middle")
+  .text("Year");
+
+// 4. Call the y axis in a group tag
+svg.append("g")
+    .attr("class", "y axis")
+    .call(d3.axisLeft(yScale)); // Create an axis component with d3.axisLeft
+
+  svg.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - margin.left)
+    .attr("x",0 - (height / 2))
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("Number of Women Enrolled at UCSD Full Time");  
+
+// 9. Append the path, bind the data, and call the line generator 
+svg.append("path")
+    .datum(dataset) // 10. Binds data to the line 
+    .attr("class", "line") // Assign a class for styling 
+    .attr("d", line); // 11. Calls the line generator 
+
+// 12. Appends a circle for each datapoint 
+svg.selectAll(".dot")
+    .data(dataset)
+  .enter().append("circle") // Uses the enter().append() method
+    .attr("class", "dot") // Assign a class for styling
+    //.attr("cx", function(d, i) { return xScale(i) })
+    .attr("cx", function(d) { return xScale(d.x) })
+    .attr("cy", function(d) { return yScale(d.y) })
+    .attr("r", 5)
+      .on("mouseover", function(a, b, c) { 
+  			console.log(a) 
+        this.attr('class', 'focus')
+		})
+      .on("mouseout", function() {  })
+
+// ADD A TITLE
+svg.append("text")
+    .attr("x", (width / 2))             
+    .attr("y", 0 - (margin.top / 2) + 50)
+    .attr("text-anchor", "middle")  
+    .style("font-size", "16px") 
+    .style("text-decoration", "underline")  
+    .text("Number of Women Enrolled at UCSD Full Time by Year");
+
+</script>
